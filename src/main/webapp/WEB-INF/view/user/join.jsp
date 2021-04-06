@@ -3,10 +3,20 @@
 <title>더조은 캠핑/회원가입</title>
 <%@ include file='./../include/lib.jsp'%>
 
-<script>	
+<script>
+function Aalert(msg) {
+	$('#msg').text(msg);
+	$('#Amodal').modal();
+}
+
+function closeAalert() {
+	$('#Amodal').modal('hide');
+	$('#msg').text('');
+}
+
 $.validator.addMethod(
 	      'myPassword',
-	      (v, e) => { 
+	      (v, e) => {
 	    	  return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,12}$/.test(v);
 	      }, '에러.');
 	      
@@ -21,8 +31,12 @@ $.validator.addMethod(
 	      (v, e) => {
 	    	  return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{2,8}$/.test(v);
 	      }, '에러.');
-	      
-$(() => {	
+
+$(() => {
+	$('#confirmBtn').click(() => {
+		$('#Amodal').modal();
+	});
+	
 	$('form').validate({
 		rules: {
 			userId: {
@@ -57,7 +71,7 @@ $(() => {
 		},
 		messages: {
 			userId: {
-				required: '아이디를 입력해 주세요.'	,
+				required: '아이디를 입력해 주세요.',
 				email: '이메일을 입력해야 합니다.'
 			},
 			num: {
@@ -90,18 +104,18 @@ $(() => {
 	});
 	
 	$('#agree1').change(() => {
-		if ($('#agree1').is(':checked') && $('#agree2').is(':checked')){
-			$('#joinBtn').html('<button class="btn btn-secondary btn-sm" style="margin-left:40px;"id="cancelBtn">취소</button> <button type="button" class="btn-sm" id="joinConfirmBtn" data-dismiss="modal"data-toggle="modal" data-target="#joinConfirmModal"style="background-color:#323232; color:white;">완료</button>');
+		if ($('#agree1').is(':checked') && $('#agree2').is(':checked')) {
+			$('#joinBtn').html('<button class="btn btn-secondary btn-sm" style="margin-left:40px;"id="cancelBtn">취소</button> <button type="button" class="btn-sm" id="joinConfirmBtn" data-dismiss="modal"data-toggle="modal" data-target="#joinConfirmModal"style="background-color:#186322; color:white;">완료</button>');
 		} else {
-			$('#joinBtn').html('<button class="btn btn-secondary btn-sm" style="margin-left:40px;"id="cancelBtn">취소</button> <button type="button" class="btn-sm" id="joinConfirmBtn" data-dismiss="modal"data-toggle="modal" data-target="#agreeModal"style="background-color:#323232; color:white;">완료</button>');	
+			$('#joinBtn').html('<button class="btn btn-secondary btn-sm" style="margin-left:40px;"id="cancelBtn">취소</button> <button type="button" class="btn-sm" id="joinConfirmBtn" data-dismiss="modal"data-toggle="modal" data-target="#agreeModal"style="background-color:#186322; color:white;">완료</button>');	
 		}
 	});
 	
 	$('#agree2').change(() => {
-		if ($('#agree1').is(':checked') && $('#agree2').is(':checked')){
-			$('#joinBtn').html('<button class="btn btn-secondary btn-sm" style="margin-left:40px;"id="cancelBtn">취소</button> <button type="button" class="btn-sm" id="joinConfirmBtn" data-dismiss="modal"data-toggle="modal" data-target="#joinConfirmModal"style="background-color:#323232; color:white;">완료</button>');
+		if ($('#agree1').is(':checked') && $('#agree2').is(':checked')) {
+			$('#joinBtn').html('<button class="btn btn-secondary btn-sm" style="margin-left:40px;"id="cancelBtn">취소</button> <button type="button" class="btn-sm" id="joinConfirmBtn" data-dismiss="modal"data-toggle="modal" data-target="#joinConfirmModal"style="background-color:#186322; color:white;">완료</button>');
 		} else {
-			$('#joinBtn').html('<button class="btn btn-secondary btn-sm" style="margin-left:40px;"id="cancelBtn">취소</button> <button type="button" class="btn-sm" id="joinConfirmBtn" data-dismiss="modal"data-toggle="modal" data-target="#agreeModal"style="background-color:#323232; color:white;">완료</button>');	
+			$('#joinBtn').html('<button class="btn btn-secondary btn-sm" style="margin-left:40px;"id="cancelBtn">취소</button> <button type="button" class="btn-sm" id="joinConfirmBtn" data-dismiss="modal"data-toggle="modal" data-target="#agreeModal"style="background-color:#186322; color:white;">완료</button>');	
 		}
 	});	
 });
@@ -151,12 +165,12 @@ $(() => {
 ::-webkit-input-placeholder {
 	font-size:5px;
 }
-
+/*
 #confirmModal {
 	text-align:center;
 	margin-top:300px;
 }
-
+*/
 #confirmInputModal {
 	text-align:center;
 	margin-top:300px;
@@ -168,6 +182,11 @@ $(() => {
 }
 
 #agreeModal {
+	text-align:center;
+	margin-top:300px;
+}
+
+#Amodal {
 	text-align:center;
 	margin-top:300px;
 }
@@ -378,7 +397,7 @@ o 로그 기록
 						<span style='margin-left:10px;'>아이디</span></th><td>
 						<input type='text' style='margin-left:10px; text-align:center;'
 							name='userId' placeholder='이메일 형식으로 입력하세요.'/>
-						<button type='button' class='btn btn-sm' id='confirmBtn' data-toggle='modal' data-target='#confirmModal'
+						<button type='button' class='btn btn-sm' id='confirmBtn' onclick='Aalert("인증번호가 발송되었습니다.")'
 							style='height:25px; text-align:center; font-size:10px; 
 								background-color:#323232; color:white;'>인증번호 발송</button>						
 					<tr><th style='background-color:#d2d2d2;'>
@@ -439,18 +458,20 @@ o 로그 기록
 		</div>
 	</div>	
 	
-	<div class='row' style='margin-top:780px;'>		
+	<div class='row' style='margin-top:780px;'>	
 		<div class='col' id='joinBtn' style='margin-left:320px; margin-bottom:50px;'>
 		<form>
 			<button class='btn btn-secondary btn-sm' style='margin-left:40px;'
 				id='cancelBtn'>취소</button>
 			<button type='submit' class='btn-sm' id='joinConfirmBtn' data-dismiss='modal'
 				data-toggle='modal' data-target='#agreeModal'
-				style='background-color:#323232; color:white;'>완료</button>
+				style='background-color:#186322; color:white;'>완료</button>
 		</form>
 		</div>		
 	</div>
 	
+	
+	<!-- 
 	<div id='confirmModal' class='modal fade' tabindex='-1'>
 		<div class='modal-dialog modal-sm'>
 			<div class='modal-content'>
@@ -463,7 +484,7 @@ o 로그 기록
 			</div>
 		</div>
 	</div>	
-	
+	 -->
 	<div id='confirmInputModal' class='modal fade' tabindex='-1'>
 		<div class='modal-dialog modal-sm'>
 			<div class='modal-content'>
@@ -501,8 +522,25 @@ o 로그 기록
 				</div>
 			</div>
 		</div>
-	</div>			
-
+	</div>
+	
+	
+	
+	<div id='Amodal' class='modal fade' tabindex='-1'>
+		<div class='modal-dialog modal-sm'>
+			<div class='modal-content'>
+				<div class='modal-body'>
+					<p id='msg' style='margin-top:20px;'></p>
+					<br>
+					<button type='button' class='btn' data-dismiss='modal'
+						style='background-color:#186322; color:white;'>확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+	
 	<%@ include file='./../include/footer.jsp'%>	
 </div>
 </body>
