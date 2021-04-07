@@ -4,38 +4,41 @@
 <%@ include file='./../include/lib.jsp'%>
 
 <script>
-function Aalert(msg) {
-	//$('#msg').text(msg);
-	$('#Amodal').modal();
+function alert(msg) {
+	$('#msg').text(msg);
+	$('#alertModal').modal();
 }
 
-function closeAalert() {
-	$('#Amodal').modal('hide');
-	$('#msg').text('');
+function agreeCheck() {
+	if($('#agree1').is(':checked') && $('#agree2').is(':checked')) {
+		$('#joinBtn').html('<button class="btn btn-secondary btn-sm" id="cancelBtn">취소</button> '
+						+ '<button class="btn-sm" id="joinConfirmBtn" '
+						+ '>완료</button>'); //data-toggle="modal" data-target="#joinConfirmModal"
+	} else {
+		$('#joinBtn').html('<button class="btn btn-secondary btn-sm" id="cancelBtn">취소</button> '
+						+ '<button class="btn-sm" id="joinConfirmBtn" '
+						+ 'onclick="alert(`이용약관 및 개인정보 처리방침에 동의하셔야 가입이 가능합니다.`)">완료</button>');
+	}
 }
 
-$.validator.addMethod(
-	      'myPassword',
-	      (v, e) => {
-	    	  return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,12}$/.test(v);
-	      }, '에러.');
-	      
-$.validator.addMethod(
-	      'myTel',
-	      (v, e) => {
-	         return /^010\d{3,4}\d{4}$/.test(v);
-	      }, '에러.');	
+$.validator.addMethod('myPassword', (v, e) => {
+	return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,12}$/.test(v);
+}, '에러.');
 
-$.validator.addMethod(
-	      'myNickname',
-	      (v, e) => {
-	    	  return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{2,8}$/.test(v);
-	      }, '에러.');
+$.validator.addMethod('myPhone', (v, e) => {
+	return /^010\d{4}\d{4}$/.test(v);
+}, '에러.');
+
+$.validator.addMethod('myNicknameMinVal', (v, e) => {
+	return /^[가-힣A-Za-z\d\W]{2,8}$/.test(v);
+}, '에러.');
+
+$.validator.addMethod('myNicknameWord', (v, e) => {
+	return /^[가-힣A-Za-z\d]{2,8}$/.test(v);
+}, '에러.');
 
 $(() => {
-	$('#confirmBtn').click(() => {
-		$('#Amodal').modal();
-	});
+	agreeCheck();
 	
 	$('form').validate({
 		rules: {
@@ -43,30 +46,31 @@ $(() => {
 		        required: true,
 		        email: true
 		    },
-		    num: {
+		    verificationCode: {
 		    	required: true
 		    },
-		    password: {
+		    userPw: {
 				required: true,
 				myPassword: true
 			},
-			passwordConfirm: {
+			userPwConfirm: {
 		        required: true,
-		        equalTo: '#password'
+		        equalTo: '#userPw'
 		    },
-		    name: {
+		    userName: {
 		    	required: true
 		    },
-		    birth: {
+		    birthday: {
 		    	required: true
 		    },
-		    phone: {
+		    phoneNumber: {
 				required: true,
-				myTel: true
+				myPhone: true
 			},
 			nickname: {
 		    	required: true,
-		    	myNickname: true
+		    	myNicknameMinVal: true,
+		    	myNicknameWord: true
 		    }
 		},
 		messages: {
@@ -74,52 +78,43 @@ $(() => {
 				required: '아이디를 입력해 주세요.',
 				email: '이메일을 입력해야 합니다.'
 			},
-			num: {
+			verificationCode: {
 				required: '인증번호를 입력해야 합니다.'
 			},
-			password: {
+			userPw: {
 				required: '비밀번호를 입력해 주세요.',
 				myPassword: '숫자와 문자를 조합하여 8~12자리를 입력하세요.'
 			},
-			passwordConfirm: {
+			userPwConfirm: {
 	            required: '입력하신 암호와 일치하지 않습니다.',
 	            equalTo: '입력하신 암호와 일치하지 않습니다.'
 	       	},
-	       	name: {
+	       	userName: {
 	       		required: '이름을 입력하세요.'
 	       	},
-	    	birth: {
+	    	birthday: {
 	       		required: '생년월일을 입력하세요.'
 	       	},
-	       	phone: {
+	       	phoneNumber: {
 		    	required: '‘-’를 제외한 전화번호를 입력하세요.',
-		    	myTel: '‘-’를 제외한 전화번호를 입력하세요.'
+		    	myPhone: '‘-’를 제외한 전화번호를 입력하세요.'
 		    },
 		    nickname: {
-		    	required: '중복 여부를 확인해야 합니다.',
-		    	myNickname: '특수문자를 포함할 수 없습니다.'
+		    	required: '2~8글자를 입력하세요.',
+		    	myNicknameMinVal: '2~8글자를 입력하세요.',
+		    	myNicknameWord: '특수문자를 포함할 수 없습니다.'
 		    },
 		},
-		submitHandler: () => $('form').submit()
+		submitHandler: $('#joinConfirmBtn').click(() => {
+			$('#joinConfirmModal').modal();
+			//현재 누르면 모달을 띄우지 않고 페이지가 넘어가는 문제 발생
+		})
 	});
 	
-	$('#agree1').change(() => {
-		if ($('#agree1').is(':checked') && $('#agree2').is(':checked')) {
-			$('#joinBtn').html('<button class="btn btn-secondary btn-sm" style="margin-left:40px;"id="cancelBtn">취소</button> <button type="button" class="btn-sm" id="joinConfirmBtn" data-dismiss="modal"data-toggle="modal" data-target="#joinConfirmModal"style="background-color:#186322; color:white;">완료</button>');
-		} else {
-			$('#joinBtn').html('<button class="btn btn-secondary btn-sm" style="margin-left:40px;"id="cancelBtn">취소</button> <button type="button" class="btn-sm" id="joinConfirmBtn" data-dismiss="modal"data-toggle="modal" data-target="#agreeModal"style="background-color:#186322; color:white;">완료</button>');	
-		}
-	});
+	$('#agree1').change(() => agreeCheck());
 	
-	$('#agree2').change(() => {
-		if ($('#agree1').is(':checked') && $('#agree2').is(':checked')) {
-			$('#joinBtn').html('<button class="btn btn-secondary btn-sm" style="margin-left:40px;"id="cancelBtn">취소</button> <button type="button" class="btn-sm" id="joinConfirmBtn" data-dismiss="modal"data-toggle="modal" data-target="#joinConfirmModal"style="background-color:#186322; color:white;">완료</button>');
-		} else {
-			$('#joinBtn').html('<button class="btn btn-secondary btn-sm" style="margin-left:40px;"id="cancelBtn">취소</button> <button type="button" class="btn-sm" id="joinConfirmBtn" data-dismiss="modal"data-toggle="modal" data-target="#agreeModal"style="background-color:#186322; color:white;">완료</button>');	
-		}
-	});	
+	$('#agree2').change(() => agreeCheck());	
 });
-
 </script>
 <style>	
 #content {
@@ -154,26 +149,26 @@ $(() => {
 	width:650px;
 	margin-bottom:10px;
 }
-
+/*
 #content #joinBtn.col button {
 	width:50px;
 	height:40px;
 	margin-top:140px;
 	font-size:15px;
 }
+*/
+#cancelBtn {
+	margin-left:40px;
+}
+
+#joinConfirmBtn {
+	background-color:#186322;
+	color:white;
+	margin-left:10px;
+}
 
 ::-webkit-input-placeholder {
 	font-size:5px;
-}
-/*
-#confirmModal {
-	text-align:center;
-	margin-top:300px;
-}
-*/
-#confirmInputModal {
-	text-align:center;
-	margin-top:300px;
 }
 
 #joinConfirmModal {
@@ -181,12 +176,7 @@ $(() => {
 	margin-top:300px;
 }
 
-#agreeModal {
-	text-align:center;
-	margin-top:300px;
-}
-
-#Amodal {
+#alertModal {
 	text-align:center;
 	margin-top:300px;
 }
@@ -201,7 +191,7 @@ input[type="text"] {
 	height:25px;
 }	
 
-label.error{
+label.error {
 	margin-left: 1rem;
 	color: red;
 	font-size: 0.7rem;
@@ -215,7 +205,7 @@ label.error{
 		
 	<div class='row' id='content'>
 		<div class='col' id='join'>
-			<strong>&nbsp;&nbsp;|&nbsp;회원가입회원가입회원가입</strong>
+			<strong>&nbsp;&nbsp;|&nbsp;회원가입</strong>
 			<hr>
 			<textarea style='width:340px; height:110px; float:left; border:1px solid grey; 
 				font-size:13px; padding:10px; resize: none;' readonly>
@@ -388,157 +378,131 @@ o 로그 기록
 				<label for='agree2' style='margin-left:170px;'>개인정보 수집 및 이용 (필수)</label>&nbsp;&nbsp;&nbsp;														
 		</div>
 		<div class='col' id='content3'>
-		<form>
-			<table class='table table-bordered' id='classTop' style='width:700px; 
-				margin-left:50px;'>				
-				<tbody>					
-					<tr><th style='background-color:#d2d2d2;'>
-						<span style='font-size:10px;'>*필수입력</span><br>
-						<span style='margin-left:10px;'>아이디</span></th><td>
-						<input type='text' style='margin-left:10px; text-align:center;'
-							name='userId' placeholder='이메일 형식으로 입력하세요.'/>
-						<button type='button' class='btn btn-sm' id='confirmBtn' 
-							style='height:25px; text-align:center; font-size:10px; 
-								background-color:#323232; color:white;'>인증번호 발송</button>
-					<tr><th style='background-color:#d2d2d2;'>
-						<span style='font-size:10px;'>*필수입력</span><br>
-						<span style='margin-left:10px;'>인증번호</span></th><td>
-						<input type='text' style='margin-left:10px; text-align:center;' 
-							name='num' placeholder='작성하신 이메일로 발송된 인증번호를 입력하세요.'/>
-						<button type='button' class='btn btn-sm' id='confirmInputBtn' data-toggle='modal' data-target='#confirmInputModal'
-							style='height:25px; text-align:center;
-							font-size:10px; background-color:#323232; color:white;'>입력확인</button>
-					<tr><th style='background-color:#d2d2d2;'>
-						<span style='font-size:10px;'>*필수입력</span><br>
-						<span style='margin-left:10px;'>비밀번호</span></th><td>
-						<input type='text' style='margin-left:10px; text-align:center;' 
-							name='password' placeholder='숫자와 문자를 조합하여 8-12자리를 입력하세요.'/></td></tr>
-					<tr><th style='background-color:#d2d2d2;'>
-						<span style='font-size:10px;'>*필수입력</span><br>
-						<span style='margin-left:10px;'>비밀번호 확인</span></th><td>
-						<input type='text' style='margin-left:10px; text-align:center;' 
-							name='passwordConfirm' placeholder='비밀번호를 한 번 더 입력하세요.'/>
-							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>	
-					<tr><th style='background-color:#d2d2d2;'>
-						<span style='font-size:10px;'>*필수입력</span><br>
-						<span style='margin-left:10px;'>이름</span></th><td>
-						<input type='text' style='margin-left:10px; text-align:center;' 
-							name='name' placeholder='이름을 입력하세요.'/></td></tr>
-					<tr><th style='background-color:#d2d2d2;'>
-						<span style='font-size:10px;'>*필수입력</span><br>
-						<span style='margin-left:10px;'>생년월일</span></th><td>
-						<input name='birth' type='date' style='margin-left:10px;'/></td></tr>
-					<tr><th style='background-color:#d2d2d2;'>
-						<span style='font-size:10px;'>*필수입력</span><br>
-						<span style='margin-left:10px;'>전화번호</span></th><td>
-						<input type='text' style='margin-left:10px; text-align:center;' 
-							name='phone' placeholder='"-"를 제외하고 입력하세요.'/></td></tr>
-					<tr><th style='background-color:#d2d2d2;'>
-						<span style='font-size:10px;'>*필수입력</span><br>
-						<span style='margin-left:10px;'>닉네임</span></th><td>
-						<input type='text' style='margin-left:10px; text-align:center;' 
-							name='nickname' placeholder='특수문자를 포함할 수 없습니다.'/>
-						<button type='button' class='btn btn-sm' style='height:25px; text-align:center;
-							font-size:10px; background-color:#323232; color:white;'>중복확인</button>
-					<tr><th style='background-color:#d2d2d2;'>
-						<span style='margin-left:10px; margin-top:10px;'>프로필 사진</span></th><td>
-						<p style='float:left;'><textarea style='margin-left:10px; text-align:center;
-							width:120px; height:130px; margin-top:10px; resize: none;' readonly
-							name='photo' placeholder='&#13;&#10;&#13;&#10;&#13;&#10;파일을  &#13;&#10;첨부하세요.'></textarea></p>
-						<span style='font-size:12px; margin-left:20px; float:left; margin-top:20px;'>
-							프로필 사진을 추가하지 않아도 가입이 가능합니다.</span><br><br><br>
-						<button class='btn btn-sm' style='height:25px; text-align:center; float:left; margin-left:25px;
-							margin-top:20px; font-size:10px; background-color:#323232; color:white;'>파일첨부</button>
-						<span style='font-size:12px; float:left; margin-top:20px; margin-left:10px;'>
-							&nbsp;.jpg / .png / .bmp 형식의 파일을 업로드 하세요.</span></td></tr>
-				</tbody>				
-			</table>
+			<form>
+				<table class='table table-bordered' id='classTop' style='width:700px; 
+					margin-left:50px;'>				
+					<tbody>					
+						<tr>
+							<th style='background-color:#d2d2d2;'>
+								<span style='font-size:10px;'>*필수입력</span><br>
+								<span style='margin-left:10px;'>아이디</span>
+							</th>
+							<td>
+								<input type='text' style='margin-left:10px; text-align:center;'
+									name='userId' placeholder='이메일 형식으로 입력하세요.'/>
+								<button type='button' class='btn btn-sm' id='confirmBtn' onclick='alert("인증번호가 발송되었습니다.")'
+									style='height:25px; text-align:center; font-size:10px;
+										background-color:#323232; color:white;'>인증번호 발송</button>
+							</td>
+						<tr>
+						<tr>
+							<th style='background-color:#d2d2d2;'>
+								<span style='font-size:10px;'>*필수입력</span><br>
+								<span style='margin-left:10px;'>인증번호</span>
+							</th>
+							<td>
+								<input type='text' style='margin-left:10px; text-align:center;' 
+									name='verificationCode' placeholder='작성하신 이메일로 발송된 인증번호를 입력하세요.'/>
+								<button type='button' class='btn btn-sm' id='confirmInputBtn' onclick='alert("인증번호 인증이 완료되었습니다.")'
+									style='height:25px; text-align:center; font-size:10px;
+										background-color:#323232; color:white;'>입력확인</button>
+							</td>
+						</tr>
+						<tr>
+							<th style='background-color:#d2d2d2;'>
+								<span style='font-size:10px;'>*필수입력</span><br>
+								<span style='margin-left:10px;'>비밀번호</span>
+							</th>
+							<td>
+								<input type='password' style='margin-left:10px; text-align:center;' 
+									name='userPw' id='userPw' placeholder='숫자와 문자를 조합하여 8-12자리를 입력하세요.'/>
+							</td>
+						</tr>
+						<tr>
+							<th style='background-color:#d2d2d2;'>
+								<span style='font-size:10px;'>*필수입력</span><br>
+								<span style='margin-left:10px;'>비밀번호 확인</span>
+							</th>
+							<td>
+								<input type='password' style='margin-left:10px; text-align:center;' 
+								name='userPwConfirm' placeholder='비밀번호를 한 번 더 입력하세요.'/>
+							</td>
+						</tr>	
+						<tr>
+							<th style='background-color:#d2d2d2;'>
+								<span style='font-size:10px;'>*필수입력</span><br>
+								<span style='margin-left:10px;'>이름</span>
+							</th>
+							<td>
+								<input type='text' style='margin-left:10px; text-align:center;' 
+									name='userName' placeholder='이름을 입력하세요.'/>
+							</td>
+						</tr>
+						<tr>
+							<th style='background-color:#d2d2d2;'>
+								<span style='font-size:10px;'>*필수입력</span><br>
+								<span style='margin-left:10px;'>생년월일</span>
+							</th>
+							<td><input name='birthday' type='date' style='margin-left:10px;'/></td>
+						</tr>
+						<tr>
+							<th style='background-color:#d2d2d2;'>
+								<span style='font-size:10px;'>*필수입력</span><br>
+								<span style='margin-left:10px;'>전화번호</span>
+							</th>
+							<td>
+								<input type='text' style='margin-left:10px; text-align:center;' 
+									name='phoneNumber' placeholder='"-"를 제외하고 입력하세요.'/>
+							</td>
+						</tr>
+						<tr>
+							<th style='background-color:#d2d2d2;'>
+								<span style='font-size:10px;'>*필수입력</span><br>
+								<span style='margin-left:10px;'>닉네임</span>
+							</th>
+							<td>
+								<input type='text' style='margin-left:10px; text-align:center;' 
+									name='nickname' placeholder='특수문자를 포함할 수 없습니다.'/>
+								<button type='button' class='btn btn-sm' style='height:25px; text-align:center;
+									font-size:10px; background-color:#323232; color:white;'>중복확인</button>
+							</td>
+						</tr>
+						<tr>
+							<th style='background-color:#d2d2d2;'>
+								<span style='margin-left:10px; margin-top:10px;'>프로필 사진</span>
+							</th>
+							<td>
+								<p style='float:left; margin-top:10px; margin-left:10px; text-align:center;
+									font-size:12px; width:120px; height:130px;
+									border:0.1px solid black;'><br><br>파일을 <br>첨부하세요.</p>
+								<span style='font-size:12px; margin-left:20px; float:left; margin-top:20px;'>
+									프로필 사진을 추가하지 않아도 가입이 가능합니다.</span><br><br><br>
+								<button class='btn btn-sm' style='height:25px; text-align:center; float:left; margin-top:15px;
+									margin-left:20px; font-size:10px; background-color:#323232; color:white;'>파일첨부</button>
+								<span style='font-size:12px; float:left; margin-top:20px; margin-left:10px;'>
+									.jpg/.png/.bmp 형식의 파일을 업로드하세요.</span>
+							</td>
+						</tr>
+					</tbody>				
+				</table>
 			</form>
 		</div>
-	</div>	
+	</div>
 	
-	<div class='row' style='margin-top:780px;'>	
-		<div class='col' id='joinBtn' style='margin-left:320px; margin-bottom:50px;'>
+	<div class='row' style='margin-top:780px;'>
 		<form>
-			<button class='btn btn-secondary btn-sm' style='margin-left:40px;'
-				id='cancelBtn'>취소</button>
-			<button type='submit' class='btn-sm' id='joinConfirmBtn' data-dismiss='modal'
-				data-toggle='modal' data-target='#agreeModal'
-				style='background-color:#186322; color:white;'>완료</button>
+			<div class='col' id='joinBtn' style='margin-left:320px; margin-bottom:50px;'></div>
 		</form>
-		</div>		
 	</div>
-	
-	
-	<!-- 
-	<div id='confirmModal' class='modal fade' tabindex='-1'>
-		<div class='modal-dialog modal-sm'>
-			<div class='modal-content'>
-				<div class='modal-body'>
-					<p style='margin-top:20px;'>인증번호가 발송되었습니다.</p>
-					<br>
-					<button type='button' class='btn' data-dismiss='modal'
-						style='background-color:#323232; color:white;'>확인</button>
-				</div>
-			</div>
-		</div>
-	</div>	
-	 -->
-	<div id='confirmInputModal' class='modal fade' tabindex='-1'>
-		<div class='modal-dialog modal-sm'>
-			<div class='modal-content'>
-				<div class='modal-body'>
-					<p style='margin-top:20px;'>인증번호 인증이 완료되었습니다.</p>
-					<br>
-					<button type='button' class='btn' data-dismiss='modal'
-						style='background-color:#323232; color:white;'>확인</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	
-	<div id='joinConfirmModal' class='modal fade' tabindex='-1'>
-		<div class='modal-dialog modal-sm'>
-			<div class='modal-content'>
-				<div class='modal-body'>
-					<p style='margin-top:20px;'>가입이 완료되었습니다.</p>
-					<br>
-					<button type='button' class='btn' data-dismiss='modal' onclick='location.href="./../"'
-						style='background-color:#323232; color:white;'>확인</button>
-				</div>
-			</div>
-		</div>
-	</div>	
-	
-	<div id='agreeModal' class='modal fade' tabindex='-1'>
-		<div class='modal-dialog modal-sm'>
-			<div class='modal-content'>
-				<div class='modal-body'>
-					<p style='margin-top:20px;'>이용약관 및 개인정보 처리방침에 동의하셔야 가입이 가능합니다.</p>
-					<br>
-					<button type='button' class='btn' data-dismiss='modal'
-						style='background-color:#323232; color:white;'>확인</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	
-	
-	
-	
-	
-	
 	
 	<%@ include file='./../include/footer.jsp'%>	
 </div>
 
-<div id='Amodal' class='modal fade' tabindex='-1'>
+<div id='alertModal' class='modal fade' tabindex='-1'>
 	<div class='modal-dialog modal-sm'>
 		<div class='modal-content'>
 			<div class='modal-body'>
-				<p style='margin-top:20px;'>ddd</p>
-				<br>
+				<p id='msg' style='margin-top:20px;'></p><br>
 				<button type='button' class='btn' data-dismiss='modal'
 					style='background-color:#186322; color:white;'>확인</button>
 			</div>
@@ -546,5 +510,16 @@ o 로그 기록
 	</div>
 </div>
 
+<div id='joinConfirmModal' class='modal fade' tabindex='-1'>
+	<div class='modal-dialog modal-sm'>
+		<div class='modal-content'>
+			<div class='modal-body'>
+				<p style='margin-top:20px;'>가입이 완료되었습니다.</p><br>
+				<button type='button' class='btn' data-dismiss='modal' <%--onclick='location.href="./../"'--%>
+					id='joinCompleteBtn' style='background-color:#186322; color:white;'>확인</button>
+			</div>
+		</div>
+	</div>
+</div>
 </body>
 </html>
