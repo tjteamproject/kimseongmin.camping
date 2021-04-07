@@ -1,13 +1,5 @@
 <%@ page language='java' contentType='text/html; charset=utf-8' pageEncoding='utf-8'%>
 
-<style>
-#carouselMain {
-	margin-top:20px;
-	margin-left:10px;
-	width:800px;
-}
-</style>
-
 <div class='row' id='gnb'>
 	<div class='col'>
 		<nav class='navbar navbar-expand-md bg-light navbar-light'>

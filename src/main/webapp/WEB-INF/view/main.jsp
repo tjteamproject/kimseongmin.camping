@@ -7,13 +7,6 @@
 
 </script>
 
-<style>
-#carouselMain {
-	margin-top:20px;
-	margin-left:10px;
-	width:800px;
-}
-</style>
 </head>
 <body>
 <div class='container'>

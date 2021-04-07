@@ -4,6 +4,12 @@
 	font-family:'Nanum Gothic Coding', monospace;	
 }
 
+#carouselMain {
+	margin-top:20px;
+	margin-left:10px;
+	width:800px;
+}
+
 #gnbBtn {
 	color:black;
 	border:0.1em solid gray;
@@ -99,6 +105,12 @@ label {
 input[type="text"] {
 	display:inline;
 	width:280px;
+	height:25px;
+}
+
+input[type="password"] {
+	display:inline;
+	width:250px;
 	height:25px;
 }
 
