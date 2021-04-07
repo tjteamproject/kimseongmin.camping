@@ -5,7 +5,7 @@
 
 <script>
 function Aalert(msg) {
-	$('#msg').text(msg);
+	//$('#msg').text(msg);
 	$('#Amodal').modal();
 }
 
@@ -215,7 +215,7 @@ label.error{
 		
 	<div class='row' id='content'>
 		<div class='col' id='join'>
-			<strong>&nbsp;&nbsp;|&nbsp;회원가입</strong>
+			<strong>&nbsp;&nbsp;|&nbsp;회원가입회원가입회원가입</strong>
 			<hr>
 			<textarea style='width:340px; height:110px; float:left; border:1px solid grey; 
 				font-size:13px; padding:10px; resize: none;' readonly>
@@ -397,9 +397,9 @@ o 로그 기록
 						<span style='margin-left:10px;'>아이디</span></th><td>
 						<input type='text' style='margin-left:10px; text-align:center;'
 							name='userId' placeholder='이메일 형식으로 입력하세요.'/>
-						<button type='button' class='btn btn-sm' id='confirmBtn' onclick='Aalert("인증번호가 발송되었습니다.")'
+						<button type='button' class='btn btn-sm' id='confirmBtn' 
 							style='height:25px; text-align:center; font-size:10px; 
-								background-color:#323232; color:white;'>인증번호 발송</button>						
+								background-color:#323232; color:white;'>인증번호 발송</button>
 					<tr><th style='background-color:#d2d2d2;'>
 						<span style='font-size:10px;'>*필수입력</span><br>
 						<span style='margin-left:10px;'>인증번호</span></th><td>
@@ -526,22 +526,25 @@ o 로그 기록
 	
 	
 	
-	<div id='Amodal' class='modal fade' tabindex='-1'>
-		<div class='modal-dialog modal-sm'>
-			<div class='modal-content'>
-				<div class='modal-body'>
-					<p id='msg' style='margin-top:20px;'></p>
-					<br>
-					<button type='button' class='btn' data-dismiss='modal'
-						style='background-color:#186322; color:white;'>확인</button>
-				</div>
-			</div>
-		</div>
-	</div>
+	
 	
 	
 	
 	<%@ include file='./../include/footer.jsp'%>	
 </div>
+
+<div id='Amodal' class='modal fade' tabindex='-1'>
+	<div class='modal-dialog modal-sm'>
+		<div class='modal-content'>
+			<div class='modal-body'>
+				<p style='margin-top:20px;'>ddd</p>
+				<br>
+				<button type='button' class='btn' data-dismiss='modal'
+					style='background-color:#186322; color:white;'>확인</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 </body>
 </html>
