@@ -10,8 +10,8 @@
 	</select>
 	
 	<insert id='insertUser'>
-		insert into users
-		values (#{userNumber}, #{userId}, #{userPw}, #{userName},
+		insert into users(user_num, user_id, user_pw, user_name, birthday, user_phone, user_nick, profile_photo)
+		values (usernum_seq.nextval, #{userId}, #{userPw}, #{userName},
 			#{birthday}, #{phoneNumber}, #{nickname}, #{profilePhoto})
 	</insert>
 </mapper>

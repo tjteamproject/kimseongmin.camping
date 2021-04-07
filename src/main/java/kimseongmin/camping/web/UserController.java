@@ -66,6 +66,13 @@ public class UserController {
 		return "user/join";
 	}
 	
+	@PostMapping("/join")
+	public Boolean join(@RequestBody User user) {
+		boolean isGood = userService.addUser(user);
+		
+		return isGood;
+	}
+	
 	@GetMapping("/findId")
 	public String findId() {
 		return "user/findId";

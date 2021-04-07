@@ -12,8 +12,7 @@ function alert(msg) {
 function agreeCheck() {
 	if($('#agree1').is(':checked') && $('#agree2').is(':checked')) {
 		$('#joinBtn').html('<button class="btn btn-secondary btn-sm" id="cancelBtn">취소</button> '
-						+ '<button class="btn-sm" id="joinConfirmBtn" '
-						+ '>완료</button>'); //data-toggle="modal" data-target="#joinConfirmModal"
+						+ '<button class="btn-sm" id="joinConfirmBtn">완료</button>');
 	} else {
 		$('#joinBtn').html('<button class="btn btn-secondary btn-sm" id="cancelBtn">취소</button> '
 						+ '<button class="btn-sm" id="joinConfirmBtn" '
@@ -105,10 +104,34 @@ $(() => {
 		    	myNicknameWord: '특수문자를 포함할 수 없습니다.'
 		    },
 		},
-		submitHandler: $('#joinConfirmBtn').click(() => {
-			$('#joinConfirmModal').modal();
-			//현재 누르면 모달을 띄우지 않고 페이지가 넘어가는 문제 발생
-		})
+		submitHandler: function(form) {
+			$('#joinConfirmBtn').click(() => {
+				$('#joinConfirmModal').modal({backdrop:'static', keyboard:false});
+				
+				$('#joinCompleteBtn').click(() => {
+					$.ajax({
+						url: 'join',
+						method: 'post',
+						data: JSON.stringify({
+							userNumber: 0,
+							userId: $('#userId').val(),
+							userPw: $('#userPw').val(),
+							userName: $('#userName').val(),
+						    birthday: $('#birthday').val(),
+						    phoneNumber: $('#phoneNumber').val(),
+							nickname: $('#nickname').val(),
+							profilePhoto: ''
+						}),
+						contentType: 'application/json',
+						success: function(data) {
+							location.href='login';
+						}
+					}).fail(err => {
+						alert('회원가입에 실패했습니다.');
+					});
+				});
+			});
+		}
 	});
 	
 	$('#agree1').change(() => agreeCheck());
@@ -389,7 +412,7 @@ o 로그 기록
 							</th>
 							<td>
 								<input type='text' style='margin-left:10px; text-align:center;'
-									name='userId' placeholder='이메일 형식으로 입력하세요.'/>
+									name='userId' id='userId' placeholder='이메일 형식으로 입력하세요.'/>
 								<button type='button' class='btn btn-sm' id='confirmBtn' onclick='alert("인증번호가 발송되었습니다.")'
 									style='height:25px; text-align:center; font-size:10px;
 										background-color:#323232; color:white;'>인증번호 발송</button>
@@ -435,7 +458,7 @@ o 로그 기록
 							</th>
 							<td>
 								<input type='text' style='margin-left:10px; text-align:center;' 
-									name='userName' placeholder='이름을 입력하세요.'/>
+									name='userName' id='userName' placeholder='이름을 입력하세요.'/>
 							</td>
 						</tr>
 						<tr>
@@ -443,7 +466,7 @@ o 로그 기록
 								<span style='font-size:10px;'>*필수입력</span><br>
 								<span style='margin-left:10px;'>생년월일</span>
 							</th>
-							<td><input name='birthday' type='date' style='margin-left:10px;'/></td>
+							<td><input name='birthday' id='birthday' type='date' style='margin-left:10px;'/></td>
 						</tr>
 						<tr>
 							<th style='background-color:#d2d2d2;'>
@@ -452,7 +475,7 @@ o 로그 기록
 							</th>
 							<td>
 								<input type='text' style='margin-left:10px; text-align:center;' 
-									name='phoneNumber' placeholder='"-"를 제외하고 입력하세요.'/>
+									name='phoneNumber' id='phoneNumber' placeholder='"-"를 제외하고 입력하세요.'/>
 							</td>
 						</tr>
 						<tr>
@@ -462,7 +485,7 @@ o 로그 기록
 							</th>
 							<td>
 								<input type='text' style='margin-left:10px; text-align:center;' 
-									name='nickname' placeholder='특수문자를 포함할 수 없습니다.'/>
+									name='nickname' id='nickname' placeholder='특수문자를 포함할 수 없습니다.'/>
 								<button type='button' class='btn btn-sm' style='height:25px; text-align:center;
 									font-size:10px; background-color:#323232; color:white;'>중복확인</button>
 							</td>
