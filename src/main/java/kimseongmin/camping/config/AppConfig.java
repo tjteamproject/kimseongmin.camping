@@ -37,7 +37,7 @@ public class AppConfig implements WebMvcConfigurer {
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(loginInterceptor())
-		.addPathPatterns("/user/**");
+		.addPathPatterns("/user/login");
 	}
 	
 	@Bean
