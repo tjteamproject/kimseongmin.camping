@@ -6,23 +6,29 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailSendException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import kimseongmin.camping.config.Log;
 import kimseongmin.camping.domain.User;
+import kimseongmin.camping.service.MailService;
 import kimseongmin.camping.service.UserService;
 
 @Controller
 @RequestMapping("/user")
 public class UserController {
 	@Autowired private UserService userService;
+	@Autowired private MailService mailService;
 	
 	@GetMapping("/login")
 	public String login(String userId, @CookieValue(required=false) Cookie loginCookie) {
@@ -54,21 +60,39 @@ public class UserController {
 		return "redirect:/";
 	}
 	
-	/*
-	@PostMapping("/add")
-	public boolean addUser(@RequestBody User user) {
-		return userService.addUser(user);
-	}
-	*/
-	
 	@GetMapping("/join")
 	public String join() {
 		return "user/join";
 	}
 	
-	@PostMapping("/join")
-	public Boolean join(@RequestBody User user) {
-		boolean isGood = userService.addUser(user);
+	@GetMapping("/idChk") @ResponseBody
+	public String idChk(@RequestParam("userId") String userId) {
+		String usedId = userService.idChk(userId);
+		return usedId;
+	}
+	
+	@GetMapping("/nickChk") @ResponseBody
+	public String nickChk(@RequestParam("nickname") String nickname) {
+		String usedNick = userService.nickChk(nickname);
+		return usedNick;
+	}
+	
+	@GetMapping("/sendCode") @ResponseBody
+	public String sendCode(String userId) {
+		return mailService.send(userId);
+	}
+	
+	@ExceptionHandler(MailSendException.class) @ResponseBody
+	public String handle() {
+		return "인증번호 전송에 실패했습니다. 아이디를 확인해 주세요.";
+	}
+	
+	@PostMapping("/join") @ResponseBody
+	public String join(@Valid @RequestBody User user, Errors err) {
+		String isGood = "";
+		if(!err.hasErrors()) isGood = Integer.toString(userService.addUser(user));
+		
+		System.out.println(isGood);
 		
 		return isGood;
 	}

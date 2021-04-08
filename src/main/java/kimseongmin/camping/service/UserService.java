@@ -4,5 +4,7 @@ import kimseongmin.camping.domain.User;
 
 public interface UserService {
 	User loginUser(String userId, String userPw);
-	boolean addUser(User user);
+	String idChk(String userId);
+	String nickChk(String nickname);
+	int addUser(User user);
 }

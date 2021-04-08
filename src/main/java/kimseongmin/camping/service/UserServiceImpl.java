@@ -16,7 +16,17 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	public boolean addUser(User user) {
-		return userDao.insertUser(user) > 0;
+	public String idChk(String userId) {
+		return userDao.selectUserId(userId);
+	}
+	
+	@Override
+	public String nickChk(String nickname) {
+		return userDao.selectNickname(nickname);
+	}
+	
+	@Override
+	public int addUser(User user) {
+		return userDao.insertUser(user);
 	}
 }

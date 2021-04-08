@@ -4,6 +4,8 @@
 <%@ include file='./../include/lib.jsp'%>
 
 <script>
+var verificationCode = '1000000';
+
 function alert(msg) {
 	$('#msg').text(msg);
 	$('#alertModal').modal();
@@ -11,53 +13,121 @@ function alert(msg) {
 
 function agreeCheck() {
 	if($('#agree1').is(':checked') && $('#agree2').is(':checked')) {
-		$('#joinBtn').html('<button class="btn btn-secondary btn-sm" id="cancelBtn">취소</button> '
+		$('#joinBtn').html('<button class="btn btn-secondary btn-sm" id="cancelBtn" '
+						+ 'onclick="location.href=`./../`;">취소</button> '
 						+ '<button class="btn-sm" id="joinConfirmBtn">완료</button>');
 	} else {
-		$('#joinBtn').html('<button class="btn btn-secondary btn-sm" id="cancelBtn">취소</button> '
+		$('#joinBtn').html('<button class="btn btn-secondary btn-sm" id="cancelBtn" '
+						+ 'onclick="location.href=`./../`;">취소</button> '
 						+ '<button class="btn-sm" id="joinConfirmBtn" '
 						+ 'onclick="alert(`이용약관 및 개인정보 처리방침에 동의하셔야 가입이 가능합니다.`)">완료</button>');
 	}
 }
 
-$.validator.addMethod('myPassword', (v, e) => {
+$.validator.addMethod('idRepetition', (v, e) => {
+	var myId = v;
+	var usedId = '';
+	
+	$.ajax({
+		url:'idChk',
+		data: {
+			userId: myId
+		}
+	}).done(result => {
+		usedId = result;
+	});
+	
+	if(myId == usedId) return false;
+	else return true;
+}, '에러.');
+
+$.validator.addMethod('codeChk', (v, e) => {
+	if(v == verificationCode) return true;
+	else return false;
+}, '에러.');
+
+$.validator.addMethod('myPw', (v, e) => {
 	return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,12}$/.test(v);
+}, '에러.');
+
+$.validator.addMethod('myName', (v, e) => {
+	return /^[가-힣]{2,}$/.test(v);
 }, '에러.');
 
 $.validator.addMethod('myPhone', (v, e) => {
 	return /^010\d{4}\d{4}$/.test(v);
 }, '에러.');
 
-$.validator.addMethod('myNicknameMinVal', (v, e) => {
+$.validator.addMethod('myNickMinVal', (v, e) => {
 	return /^[가-힣A-Za-z\d\W]{2,8}$/.test(v);
 }, '에러.');
 
-$.validator.addMethod('myNicknameWord', (v, e) => {
+$.validator.addMethod('myNickWord', (v, e) => {
 	return /^[가-힣A-Za-z\d]{2,8}$/.test(v);
+}, '에러.');
+
+$.validator.addMethod('nickRepetition', (v, e) => {
+	var myNick = v;
+	usedNick = '';
+	
+	$.ajax({
+		url:'nickChk',
+		data: {
+			nickname: myNick
+		}
+	}).done(result => {
+		usedNick = result;
+	});
+	
+	if(myNick == usedNick) return false;
+	else return true;
 }, '에러.');
 
 $(() => {
 	agreeCheck();
 	
+	$('#confirmBtn').click(() => {
+		userId = $('#userId').val();
+		
+		if(userId) {
+			$.ajax({
+				url:'sendCode',
+				data: {
+					userId: userId
+				}
+			}).done(result => {
+				if(result.length == 6) {
+					verificationCode = result;
+					alert('인증번호가 발송되었습니다.');
+				} else {
+					alert(result);
+				}
+			});
+		}
+	});
+	
 	$('form').validate({
 		rules: {
 			userId: {
 		        required: true,
-		        email: true
+		        email: true,
+		        idRepetition: true
 		    },
 		    verificationCode: {
-		    	required: true
+		    	required: true,
+		    	codeChk: true
 		    },
 		    userPw: {
 				required: true,
-				myPassword: true
+				myPw: true
 			},
 			userPwConfirm: {
 		        required: true,
 		        equalTo: '#userPw'
 		    },
 		    userName: {
-		    	required: true
+		    	required: true,
+		    	myName: true
 		    },
 		    birthday: {
 		    	required: true
@@ -68,28 +138,32 @@ $(() => {
 			},
 			nickname: {
 		    	required: true,
-		    	myNicknameMinVal: true,
-		    	myNicknameWord: true
+		    	myNickMinVal: true,
+		    	myNickWord: true,
+		    	nickRepetition: true
 		    }
 		},
 		messages: {
 			userId: {
 				required: '아이디를 입력해 주세요.',
-				email: '이메일을 입력해야 합니다.'
+				email: '이메일을 입력해야 합니다.',
+				idRepetition: '존재하는 아이디입니다.'
 			},
 			verificationCode: {
-				required: '인증번호를 입력해야 합니다.'
+				required: '인증번호를 입력해야 합니다.',
+				codeChk: '인증번호가 일치하지 않습니다.'
 			},
 			userPw: {
 				required: '비밀번호를 입력해 주세요.',
-				myPassword: '숫자와 문자를 조합하여 8~12자리를 입력하세요.'
+				myPw: '숫자와 문자를 조합하여 8~12자리를 입력하세요.'
 			},
 			userPwConfirm: {
 	            required: '입력하신 암호와 일치하지 않습니다.',
 	            equalTo: '입력하신 암호와 일치하지 않습니다.'
 	       	},
 	       	userName: {
-	       		required: '이름을 입력하세요.'
+	       		required: '이름을 입력하세요.',
+	       		myName: '2글자 이상의 한글로 입력하세요.'
 	       	},
 	    	birthday: {
 	       		required: '생년월일을 입력하세요.'
@@ -100,35 +174,38 @@ $(() => {
 		    },
 		    nickname: {
 		    	required: '2~8글자를 입력하세요.',
-		    	myNicknameMinVal: '2~8글자를 입력하세요.',
-		    	myNicknameWord: '특수문자를 포함할 수 없습니다.'
+		    	myNickMinVal: '2~8글자를 입력하세요.',
+		    	myNickWord: '특수문자를 포함할 수 없습니다.',
+		    	nickRepetition: '존재하는 닉네임입니다.'
 		    },
 		},
 		submitHandler: function(form) {
-			$('#joinConfirmBtn').click(() => {
-				$('#joinConfirmModal').modal({backdrop:'static', keyboard:false});
-				
-				$('#joinCompleteBtn').click(() => {
-					$.ajax({
-						url: 'join',
-						method: 'post',
-						data: JSON.stringify({
-							userNumber: 0,
-							userId: $('#userId').val(),
-							userPw: $('#userPw').val(),
-							userName: $('#userName').val(),
-						    birthday: $('#birthday').val(),
-						    phoneNumber: $('#phoneNumber').val(),
-							nickname: $('#nickname').val(),
-							profilePhoto: ''
-						}),
-						contentType: 'application/json',
-						success: function(data) {
+			$('#joinConfirmModal').modal({backdrop:'static', keyboard:false});
+			
+			$('#joinCompleteBtn').click(() => {
+				$.ajax({
+					url: 'join',
+					method: 'post',
+					data: JSON.stringify({
+						userNumber: 0,
+						userId: $('#userId').val(),
+						userPw: $('#userPw').val(),
+						userName: $('#userName').val(),
+					    birthday: $('#birthday').val(),
+					    phoneNumber: $('#phoneNumber').val(),
+						nickname: $('#nickname').val(),
+						profilePhoto: ''
+					}),
+					contentType: 'application/json',
+					success: function(data) {
+						if(data == '1') {
 							location.href='login';
+						} else {
+							alert('생년월일과 그 외 정보들이 제대로 입력됐는지 확인해 주세요.');
 						}
-					}).fail(err => {
-						alert('회원가입에 실패했습니다.');
-					});
+					}
+				}).fail(err => {
+					alert('회원가입에 실패했습니다.');
 				});
 			});
 		}
@@ -413,7 +490,7 @@ o 로그 기록
 							<td>
 								<input type='text' style='margin-left:10px; text-align:center;'
 									name='userId' id='userId' placeholder='이메일 형식으로 입력하세요.'/>
-								<button type='button' class='btn btn-sm' id='confirmBtn' onclick='alert("인증번호가 발송되었습니다.")'
+								<button type='button' class='btn btn-sm' id='confirmBtn'
 									style='height:25px; text-align:center; font-size:10px;
 										background-color:#323232; color:white;'>인증번호 발송</button>
 							</td>
@@ -424,7 +501,7 @@ o 로그 기록
 								<span style='margin-left:10px;'>인증번호</span>
 							</th>
 							<td>
-								<input type='text' style='margin-left:10px; text-align:center;' 
+								<input type='text' style='margin-left:10px; text-align:center;' maxlength='6'
 									name='verificationCode' placeholder='작성하신 이메일로 발송된 인증번호를 입력하세요.'/>
 								<button type='button' class='btn btn-sm' id='confirmInputBtn' onclick='alert("인증번호 인증이 완료되었습니다.")'
 									style='height:25px; text-align:center; font-size:10px;

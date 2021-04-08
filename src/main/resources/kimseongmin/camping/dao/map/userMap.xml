@@ -9,6 +9,14 @@
 		where user_id = #{param1} and user_pw = #{param2}
 	</select>
 	
+	<select id='selectUserId' resultType='string'>
+		select user_id from users where user_id = #{param1}
+	</select>
+	
+	<select id='selectNickname' resultType='string'>
+		select user_nick from users where user_nick = #{param1}
+	</select>
+	
 	<insert id='insertUser'>
 		insert into users(user_num, user_id, user_pw, user_name, birthday, user_phone, user_nick, profile_photo)
 		values (usernum_seq.nextval, #{userId}, #{userPw}, #{userName},
