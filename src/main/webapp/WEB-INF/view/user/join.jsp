@@ -24,12 +24,35 @@ function agreeCheck() {
 	}
 }
 
+function codeConfirm() {
+	if($('#verificationCode').val() == verificationCode) return true;
+	else return false;
+}
+
+function nickCheck(v) {
+	var myNick = v;
+	usedNick = '';
+	
+	$.ajax({
+		url:'nickChk',
+		async: false,
+		data: {
+			nickname: myNick
+		}
+	}).done(result => {
+		usedNick = result;
+	});
+	
+	return !(myNick == usedNick);
+}
+
 $.validator.addMethod('idRepetition', (v, e) => {
 	var myId = v;
 	var usedId = '';
 	
 	$.ajax({
 		url:'idChk',
+		async: false,
 		data: {
 			userId: myId
 		}
@@ -37,8 +60,7 @@ $.validator.addMethod('idRepetition', (v, e) => {
 		usedId = result;
 	});
 	
-	if(myId == usedId) return false;
-	else return true;
+	return !(myId == usedId);
 }, '에러.');
 
 $.validator.addMethod('codeChk', (v, e) => {
@@ -67,43 +89,53 @@ $.validator.addMethod('myNickWord', (v, e) => {
 }, '에러.');
 
 $.validator.addMethod('nickRepetition', (v, e) => {
-	var myNick = v;
-	usedNick = '';
-	
-	$.ajax({
-		url:'nickChk',
-		data: {
-			nickname: myNick
-		}
-	}).done(result => {
-		usedNick = result;
-	});
-	
-	if(myNick == usedNick) return false;
-	else return true;
+	return nickCheck(v);
 }, '에러.');
 
 $(() => {
 	agreeCheck();
 	
-	$('#confirmBtn').click(() => {
-		userId = $('#userId').val();
-		
-		if(userId) {
-			$.ajax({
-				url:'sendCode',
-				data: {
-					userId: userId
-				}
-			}).done(result => {
-				if(result.length == 6) {
-					verificationCode = result;
-					alert('인증번호가 발송되었습니다.');
-				} else {
-					alert(result);
-				}
-			});
+	$('#sendCodeBtn').click(() => {
+		if($('#sendCodeBtn').attr('class') == 'btn btn-sm') {
+			$('#sendCodeBtn').addClass('disabled');
+			userId = $('#userId').val();
+			
+			if(userId) {
+				$.ajax({
+					url:'sendCode',
+					data: {
+						userId: userId
+					}
+				}).done(result => {
+					if(result.length == 6) {
+						verificationCode = result;
+						alert('인증번호가 발송되었습니다.');
+						$('#sendCodeBtn').removeClass('disabled');
+					} else alert('인증번호 발송에 실패했습니다.');
+				});
+			} else alert('아이디를 입력해 주세요.');
 		}
+	});
+	
+	$('#codeConfirmBtn').click(() => {
+		if(codeConfirm()) alert('인증번호 인증이 완료되었습니다.');
+		else alert('인증번호를 확인해 주세요.');
+	});
+	
+	$('#nickCheckBtn').click(() => {
+		var nick = $('#nickname').val();
+		var lengthChk = /^[가-힣A-Za-z\d\W]{2,8}$/.test(nick);
+		var wordsChk = /^[가-힣A-Za-z\d]{2,8}$/.test(nick);
+		var reptitionChk = nickCheck(nick);
+		
+		console.log(nick + ',' + lengthChk + ',' + wordsChk + ',' + reptitionChk);
+		console.log(nick.length);
+		
+		if(lengthChk && wordsChk && reptitionChk) alert('사용 가능한 닉네임입니다.');
+		else if(lengthChk && wordsChk) alert('이미 사용 중인 닉네임입니다.');
+		else if(lengthChk) alert('특수문자를 포함할 수 없습니다.');
+		else if(nick.length == 1 || nick.length > 8) alert('2~8글자를 입력하세요.');
+		else if(nick == '') alert('닉네임을 입력하세요.');
 	});
 	
 	$('form').validate({
@@ -147,7 +179,7 @@ $(() => {
 			userId: {
 				required: '아이디를 입력해 주세요.',
 				email: '이메일을 입력해야 합니다.',
-				idRepetition: '존재하는 아이디입니다.'
+				idRepetition: '이미 사용 중인 아이디입니다.'
 			},
 			verificationCode: {
 				required: '인증번호를 입력해야 합니다.',
@@ -158,31 +190,31 @@ $(() => {
 				myPw: '숫자와 문자를 조합하여 8~12자리를 입력하세요.'
 			},
 			userPwConfirm: {
-	            required: '입력하신 암호와 일치하지 않습니다.',
-	            equalTo: '입력하신 암호와 일치하지 않습니다.'
-	       	},
-	       	userName: {
-	       		required: '이름을 입력하세요.',
-	       		myName: '2글자 이상의 한글로 입력하세요.'
-	       	},
-	    	birthday: {
-	       		required: '생년월일을 입력하세요.'
-	       	},
-	       	phoneNumber: {
-		    	required: '‘-’를 제외한 전화번호를 입력하세요.',
-		    	myPhone: '‘-’를 제외한 전화번호를 입력하세요.'
-		    },
+				required: '입력하신 암호와 일치하지 않습니다.',
+				equalTo: '입력하신 암호와 일치하지 않습니다.'
+			},
+			userName: {
+				required: '이름을 입력하세요.',
+				myName: '2글자 이상의 한글로 입력하세요.'
+			},
+			birthday: {
+				required: '생년월일을 입력하세요.'
+			},
+			phoneNumber: {
+				required: '‘-’를 제외한 전화번호를 입력하세요.',
+				myPhone: '‘-’를 제외한 전화번호를 입력하세요.'
+			},
 		    nickname: {
-		    	required: '2~8글자를 입력하세요.',
-		    	myNickMinVal: '2~8글자를 입력하세요.',
-		    	myNickWord: '특수문자를 포함할 수 없습니다.',
-		    	nickRepetition: '존재하는 닉네임입니다.'
-		    },
+				required: '닉네임을 입력하세요.',
+				myNickMinVal: '2~8글자를 입력하세요.',
+				myNickWord: '특수문자를 포함할 수 없습니다.',
+				nickRepetition: '이미 사용 중인 닉네임입니다.'
+			},
 		},
 		submitHandler: function(form) {
-			$('#joinConfirmModal').modal({backdrop:'static', keyboard:false});
+			console.log('submitHandler 시작');
 			
-			$('#joinCompleteBtn').click(() => {
+			if(codeConfirm()) {
 				$.ajax({
 					url: 'join',
 					method: 'post',
@@ -199,7 +231,11 @@ $(() => {
 					contentType: 'application/json',
 					success: function(data) {
 						if(data == '1') {
-							location.href='login';
+							$('#joinConfirmModal').modal({backdrop:'static', keyboard:false});
+							
+							$('#joinCompleteBtn').click(() => {
+								location.href='login';
+							});
 						} else {
 							alert('생년월일과 그 외 정보들이 제대로 입력됐는지 확인해 주세요.');
 						}
@@ -207,7 +243,7 @@ $(() => {
 				}).fail(err => {
 					alert('회원가입에 실패했습니다.');
 				});
-			});
+			} else alert('인증번호를 확인해 주세요.');
 		}
 	});
 	
@@ -490,11 +526,11 @@ o 로그 기록
 							<td>
 								<input type='text' style='margin-left:10px; text-align:center;'
 									name='userId' id='userId' placeholder='이메일 형식으로 입력하세요.'/>
-								<button type='button' class='btn btn-sm' id='confirmBtn'
+								<button type='button' class='btn btn-sm' id='sendCodeBtn'
 									style='height:25px; text-align:center; font-size:10px;
 										background-color:#323232; color:white;'>인증번호 발송</button>
 							</td>
-						<tr>
+						</tr>
 						<tr>
 							<th style='background-color:#d2d2d2;'>
 								<span style='font-size:10px;'>*필수입력</span><br>
@@ -502,8 +538,8 @@ o 로그 기록
 							</th>
 							<td>
 								<input type='text' style='margin-left:10px; text-align:center;' maxlength='6'
-									name='verificationCode' placeholder='작성하신 이메일로 발송된 인증번호를 입력하세요.'/>
-								<button type='button' class='btn btn-sm' id='confirmInputBtn' onclick='alert("인증번호 인증이 완료되었습니다.")'
+									name='verificationCode' id='verificationCode' placeholder='작성하신 이메일로 발송된 인증번호를 입력하세요.'/>
+								<button type='button' class='btn btn-sm' id='codeConfirmBtn'
 									style='height:25px; text-align:center; font-size:10px;
 										background-color:#323232; color:white;'>입력확인</button>
 							</td>
@@ -563,8 +599,9 @@ o 로그 기록
 							<td>
 								<input type='text' style='margin-left:10px; text-align:center;' 
 									name='nickname' id='nickname' placeholder='특수문자를 포함할 수 없습니다.'/>
-								<button type='button' class='btn btn-sm' style='height:25px; text-align:center;
-									font-size:10px; background-color:#323232; color:white;'>중복확인</button>
+								<button type='button' class='btn btn-sm' id='nickCheckBtn'
+									style='height:25px; text-align:center; font-size:10px;
+										background-color:#323232; color:white;'>중복확인</button>
 							</td>
 						</tr>
 						<tr>
@@ -615,7 +652,7 @@ o 로그 기록
 		<div class='modal-content'>
 			<div class='modal-body'>
 				<p style='margin-top:20px;'>가입이 완료되었습니다.</p><br>
-				<button type='button' class='btn' data-dismiss='modal' <%--onclick='location.href="./../"'--%>
+				<button type='button' class='btn' data-dismiss='modal'
 					id='joinCompleteBtn' style='background-color:#186322; color:white;'>확인</button>
 			</div>
 		</div>
