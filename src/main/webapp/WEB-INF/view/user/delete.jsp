@@ -20,18 +20,6 @@ $(() => {
 	});
 });
 
-$('#delBtn').click(() => {
-	$('#delModal').modal();
-});
-
-$('#delModalBtn').click(() => {
-	$('#delModal').modal('hide');
-	$('#delModal2').modal();
-});
-
-$('#delBtnOk').click(() => {
-	$('#delModal2').modal('hide');
-});
 </script>
 <style>
 #content {
@@ -71,12 +59,7 @@ label.error{
 	color:red;
 }
 
-#deleteModal {
-	text-align:center;
-	margin-top:300px;
-}
-
-#deleteConfirmModal {
+#alertModal {
 	text-align:center;
 	margin-top:300px;
 }
@@ -123,20 +106,7 @@ label.error{
 		</div>							
 	
 	<%@ include file='./../include/footer.jsp'%>
-</div>
-
-<div id='delModal2' class='modal fade' tabindex='-1'>
-	<div class='modal-dialog'>
-		<div class='modal-content'>
-			<div class='modal-body'>
-				<p class='text-center'>회원탈퇴가 완료되었습니다.</p>
-			</div>
-			<div class='modal-footer'>
-				<button type='button' class='btn btn-secondary' id='delBtnOk'>확인</button>
-			</div>
-		</div>
-	</div>
-</div>      
+</div>    
 
 <div id='deleteModal' class='modal fade' tabindex='-1'>
 	<div class='modal-dialog madal-sm'>
@@ -166,14 +136,13 @@ label.error{
 	</div>
 </div>
 
-<div id='confirmModal' class='modal fade' tabindex='-1'>
+<div id='alertModal' class='modal fade' tabindex='-1'>
 	<div class='modal-dialog modal-sm'>
 		<div class='modal-content'>
 			<div class='modal-body'>
-				<p style='margin-top:20px;'>인증번호가 발송되었습니다.</p>
-				<br>
+				<p id='msg' style='margin-top:20px;'></p><br>
 				<button type='button' class='btn' data-dismiss='modal'
-					style='background-color:#323232; color:white;'>확인</button>
+					style='background-color:#186322; color:white;'>확인</button>
 			</div>
 		</div>
 	</div>

@@ -29,6 +29,23 @@ function codeConfirm() {
 	else return false;
 }
 
+function idCheck(v) {
+	var myId = v;
+	var usedId = '';
+	
+	$.ajax({
+		url:'idChk',
+		async: false,
+		data: {
+			userId: myId
+		}
+	}).done(result => {
+		usedId = result;
+	});
+	
+	return !(myId == usedId);
+}
+
 function nickCheck(v) {
 	var myNick = v;
 	usedNick = '';
@@ -47,20 +64,7 @@ function nickCheck(v) {
 }
 
 $.validator.addMethod('idRepetition', (v, e) => {
-	var myId = v;
-	var usedId = '';
-	
-	$.ajax({
-		url:'idChk',
-		async: false,
-		data: {
-			userId: myId
-		}
-	}).done(result => {
-		usedId = result;
-	});
-	
-	return !(myId == usedId);
+	return idCheck(v);
 }, '에러.');
 
 $.validator.addMethod('codeChk', (v, e) => {
@@ -98,22 +102,29 @@ $(() => {
 	$('#sendCodeBtn').click(() => {
 		if($('#sendCodeBtn').attr('class') == 'btn btn-sm') {
 			$('#sendCodeBtn').addClass('disabled');
+			
 			userId = $('#userId').val();
 			
 			if(userId) {
-				$.ajax({
-					url:'sendCode',
-					data: {
-						userId: userId
-					}
-				}).done(result => {
-					if(result.length == 6) {
-						verificationCode = result;
-						alert('인증번호가 발송되었습니다.');
-						$('#sendCodeBtn').removeClass('disabled');
-					} else alert('인증번호 발송에 실패했습니다.');
-				});
+				if(idCheck(userId)) {
+					$.ajax({
+						url:'sendCode',
+						async: false,
+						data: {
+							userId: userId
+						}
+					}).done(result => {
+						if(result.length == 6) {
+							verificationCode = result;
+							alert('인증번호가 발송되었습니다.');
+						} else alert('인증번호 발송에 실패했습니다.');
+					}).fail(err => {
+						alert('인증번호 발송에 실패했습니다.');
+					});
+				} else alert('이미 사용 중인 아이디입니다.');
 			} else alert('아이디를 입력해 주세요.');
+			
+			$('#sendCodeBtn').removeClass('disabled');
 		}
 	});
 	
@@ -614,8 +625,9 @@ o 로그 기록
 									border:0.1px solid black;'><br><br>파일을 <br>첨부하세요.</p>
 								<span style='font-size:12px; margin-left:20px; float:left; margin-top:20px;'>
 									프로필 사진을 추가하지 않아도 가입이 가능합니다.</span><br><br><br>
-								<button class='btn btn-sm' style='height:25px; text-align:center; float:left; margin-top:15px;
-									margin-left:20px; font-size:10px; background-color:#323232; color:white;'>파일첨부</button>
+								<button type='button' class='btn btn-sm'
+									style='height:25px; text-align:center; float:left; margin-top:15px;
+										margin-left:20px; font-size:10px; background-color:#323232; color:white;'>파일첨부</button>
 								<span style='font-size:12px; float:left; margin-top:20px; margin-left:10px;'>
 									.jpg/.png/.bmp 형식의 파일을 업로드하세요.</span>
 							</td>
